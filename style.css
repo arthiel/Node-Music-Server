@@ -1,0 +1,61 @@
+body {
+    background-color: #42aec2;
+}
+
+#content {
+    width: 900px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    padding: 5px 25px;
+
+    box-shadow: 5px 5px rgba(0,0,0,0.3);
+
+    overflow: hidden;
+}
+
+header {
+    width: 70%;
+    float: left;
+}
+
+header h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 35px;
+    color: #8cc84b;
+}
+
+#chatList {
+    width: 20%;
+    float: right;
+}
+.chatRooms {
+    width: auto;
+    height: auto;
+    background-color: #D3D3D3;
+    display: inline-block;
+    margin: 5px;
+    padding: 2px;
+    color: #808080;
+}
+.chatRooms:hover {
+    background-color: #87CEFA;
+}
+
+#chatMsg {
+    width: 20%;
+    margin: 5px;
+    border: solid 2px black;
+    padding: 5px;
+    float: left;
+}
+
+#playingNow{ 
+    width: 40%;
+    float: left;
+}
+
+.playingNow {
+
+}

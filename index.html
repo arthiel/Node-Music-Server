@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> Music Index </title>
+    <link rel='stylesheet' type='text/css' href='style.css'>
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+        var username;
+        var socket = io.connect( 'http://localhost' );
+
+        function init(){
+            username = prompt( "Name?" );
+            addUser();
+        }
+
+        // Send User Information
+        function addUser(){
+            socket.emit( 'addUser', username ); 
+        }
+
+        // Update information on available [chat] rooms
+        socket.on( 'updateChatList', function( newRoom ) {
+            var chatList = document.getElementById('chatList');
+            var addMe = document.createElement( 'span' );
+            addMe.className = 'chatRooms';
+            console.log( addMe );
+            addMe.appendChild( document.createTextNode( newRoom.rm ));
+            chatList.appendChild( addMe );
+        });
+
+        socket.on( 'updatePlayingNow', function( playNow ){
+            var playing = document.getElementById('playingNow');
+            var addMe = document.createElement('div');
+            addMe.className = 'playingNow';
+            addMe.appendChild( document.createTextNode( playNow.rm + " has " + playNow.playStatus ));
+            playing.appendChild( addMe );
+        });
+
+    </script>
+</head>
+<body onload="init()">
+<div id='content'>
+    <header>
+        <h1>Play Your Music</h1>
+    </header>
+    <div id='chatList'>
+    </div>
+    <div id='playingNow'>
+        <h2>Playing Now</h2>
+    </div>
+</div>
+</body>
+</html>

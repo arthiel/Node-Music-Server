@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> Music Index </title>
+    <link rel='stylesheet' type='text/css' href='style.css' >
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+        var username;
+        var socket = io.connect( 'http://localhost' );
+        var room_status = 'exist';
+
+        function init(){
+            username = prompt( "Name?" );
+            addUser();
+        }
+
+       // Receive Chat Updates
+        socket.on( 'updateMsg', function( username, data ) {
+            var chats = data.msg;
+            var logmsg = document.createTextNode( username + " : " + chats );
+            document.getElementById( 'chatMsg' ).appendChild( document.createElement('br' ) );
+            document.getElementById( 'chatMsg' ).appendChild( logmsg );
+        });
+
+        // Send User Information
+        function addUser(){
+            socket.emit( 'addUser', username ); 
+        }
+
+        function radioChange( value ){
+            if( room_status != value ){
+                socket.emit( 'roomStatusChange', value );
+            }
+        }
+
+        // Send Chat
+        function sendMessage(){
+            var msg = document.getElementById('chats').value;
+            socket.emit( 'sendChat', msg );
+        }
+
+    </script>
+</head>
+<body onload="init()">
+<div id="content">
+    <header>
+        <h1>Play Your Music.</h1>
+    </header>
+    <div id='chatMsg'>
+    </div>
+    <input type='text' id='chats' />
+    <input type='button' value='Submit' id='submit' onclick=sendMessage() />
+
+    <div id='roomStatus'>
+        <input type='radio' name='stat' value='exist' checked onclick="radioChange(this.value)">exist
+        <input type='radio' name='stat' value='begun' onclick="radioChange(this.value)">begun
+        <input type='radio' name='stat' value='practice' onclick="radioChange(this.value)">practice
+        <input type='radio' name='stat' value='stopped' onclick="radioChange(this.value)">stopped
+    </div>
+</div>
+</body>
+</html>
