@@ -1,5 +1,6 @@
 body {
     background-color: #42aec2;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 #content {
@@ -43,12 +44,16 @@ header h1 {
     background-color: #87CEFA;
 }
 
-#chatMsg {
-    width: 20%;
+#chats {
+    width: 300px;
     margin: 5px;
     border: solid 2px black;
     padding: 5px;
-    float: left;
+    float: right;
+}
+
+#chatsTxt {
+    width: 70%;
 }
 
 #playingNow{ 
@@ -58,4 +63,9 @@ header h1 {
 
 .playingNow {
 
+}
+
+#addRoom {
+    width: 40%;
+    float: left;
 }

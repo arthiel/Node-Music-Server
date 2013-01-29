@@ -29,13 +29,14 @@
 
         function radioChange( value ){
             if( room_status != value ){
+                room_status = value;
                 socket.emit( 'roomStatusChange', value );
             }
         }
 
         // Send Chat
         function sendMessage(){
-            var msg = document.getElementById('chats').value;
+            var msg = document.getElementById('chatsTxt').value;
             socket.emit( 'sendChat', msg );
         }
 
@@ -46,17 +47,19 @@
     <header>
         <h1>Play Your Music.</h1>
     </header>
-    <div id='chatMsg'>
-    </div>
-    <input type='text' id='chats' />
-    <input type='button' value='Submit' id='submit' onclick=sendMessage() />
-
     <div id='roomStatus'>
         <input type='radio' name='stat' value='exist' checked onclick="radioChange(this.value)">exist
         <input type='radio' name='stat' value='begun' onclick="radioChange(this.value)">begun
         <input type='radio' name='stat' value='practice' onclick="radioChange(this.value)">practice
         <input type='radio' name='stat' value='stopped' onclick="radioChange(this.value)">stopped
     </div>
+    <div id='chats'>
+        <div id='chatMsg'>
+        </div>
+        <input type='text' id='chatsTxt' />
+        <input type='button' value='Submit' id='submit' onclick=sendMessage() />
+    </div>
+
 </div>
 </body>
 </html>

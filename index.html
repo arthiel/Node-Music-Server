@@ -28,6 +28,7 @@
             chatList.appendChild( addMe );
         });
 
+        // Update the information of Room Statuses
         socket.on( 'updatePlayingNow', function( playNow ){
             var playing = document.getElementById('playingNow');
             var addMe = document.createElement('div');
@@ -35,6 +36,12 @@
             addMe.appendChild( document.createTextNode( playNow.rm + " has " + playNow.playStatus ));
             playing.appendChild( addMe );
         });
+
+        // Add Room of Chats.
+        function addRoom() {
+            socket.emit( 'addRoom', document.getElementById( 'roomName' ).value );
+            console.log( "Add Room Done." );
+        }
 
     </script>
 </head>
@@ -47,6 +54,11 @@
     </div>
     <div id='playingNow'>
         <h2>Playing Now</h2>
+    </div>
+    <div id='addRoom'>
+        <h2>Add Room</h2>
+        <input type='text' name='roomName' id='roomName' />
+        <input type='button' id='submit' value='submit' onclick='addRoom()' /> 
     </div>
 </div>
 </body>

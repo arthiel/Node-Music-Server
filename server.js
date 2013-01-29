@@ -84,8 +84,9 @@ io.sockets.on( 'connection', function( socket ) {
     // Create room
     socket.on( 'addRoom' , function( roomName ){
         rooms.push( roomName );
-        socket.join( roomName );
+        //socket.join( roomName );
         socket.room.playStatus = "been created";
+        socket.emit( 'updateChatList', { rm: roomName } );
     });
 
     // Change room status
