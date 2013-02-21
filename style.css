@@ -3,7 +3,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-#content {
+.content {
     width: 900px;
     height: auto;
     margin-left: auto;
@@ -17,7 +17,7 @@ body {
 }
 
 header {
-    width: 70%;
+    width: 50%;
     float: left;
 }
 
@@ -28,7 +28,7 @@ header h1 {
 }
 
 #chatList {
-    width: 20%;
+    width: 40%;
     float: right;
 }
 .chatRooms {
@@ -37,35 +37,85 @@ header h1 {
     background-color: #D3D3D3;
     display: inline-block;
     margin: 5px;
-    padding: 2px;
+    padding: 5px;
     color: #808080;
 }
 .chatRooms:hover {
     background-color: #87CEFA;
 }
 
-#chats {
-    width: 300px;
-    margin: 5px;
-    border: solid 2px black;
-    padding: 5px;
-    float: right;
-}
 
-#chatsTxt {
-    width: 70%;
+/*** Main Room Screen ***/
+#main_screen {
+    position: relative;
+    float: left;
+    display: block;
+    width: 100%;
+    height: 300px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #808080;
 }
 
 #playingNow{ 
     width: 40%;
+    height: 200px;
     float: left;
-}
-
-.playingNow {
-
+    overflow-y: scroll;
 }
 
 #addRoom {
     width: 40%;
+    float: right;
+}
+
+/*** Music Room Screen ***/
+#music_room {
+    position: relative;
     float: left;
+    display: block;
+    width: 100%;
+    padding-top: 20px;
+    height: 300px;
+}
+#music_board {
+    width: 40%;
+    display: inline-block;
+}
+#chats_txt {
+    float: left;
+    display: block;
+}
+
+.note {
+    float: right;
+    display: block;
+    margin-left; 20px;
+    font-size: 40px;
+}
+
+#note_disp2 {
+    color: red;
+}
+
+#note_disp {
+    color: blue;
+}
+
+#chats {
+    width: 40%;
+    height: 250px;
+    margin: 5px;
+    border: solid 2px black;
+    padding: 5px;
+    float: right;
+    display: inline-block;
+}
+
+#chatMsg {
+    height: 230px;
+    overflow: scroll;
+}
+
+#chatsTxt {
+    width: 70%;
 }

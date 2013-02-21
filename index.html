@@ -4,13 +4,16 @@
     <title> Music Index </title>
     <link rel='stylesheet' type='text/css' href='style.css'>
     <script src='/socket.io/socket.io.js'></script>
+    <script src='./client_room.js'></script>
     <script>
         var username;
-        var socket = io.connect( 'http://localhost' );
+        var socket = io.connect( 'http://129.21.102.142' );
+        var room_status = 'exist';
 
         function init(){
             username = prompt( "Name?" );
             addUser();
+            document.getElementById('music_txt').addEventListener('keypress',  notePress);
         }
 
         // Send User Information
@@ -23,9 +26,13 @@
             var chatList = document.getElementById('chatList');
             var addMe = document.createElement( 'span' );
             addMe.className = 'chatRooms';
+            if( newRoom == socket.room ){
+                addMe.className += ' current';
+            }
             console.log( addMe );
             addMe.appendChild( document.createTextNode( newRoom.rm ));
             chatList.appendChild( addMe );
+            addMe.addEventListener( 'click', changeRm, false );
         });
 
         // Update the information of Room Statuses
@@ -37,28 +44,95 @@
             playing.appendChild( addMe );
         });
 
-        // Add Room of Chats.
-        function addRoom() {
-            socket.emit( 'addRoom', document.getElementById( 'roomName' ).value );
-            console.log( "Add Room Done." );
+        // Send Chat
+        function sendMessage(){
+            var msg = document.getElementById('chatsTxt').value;
+            socket.emit( 'sendChat', msg );
+        }
+
+       // Receive Chat Updates
+       socket.on( 'updateMsg', function( username, data ) {
+            var chats = data.msg;
+            var logmsg = document.createTextNode( username + " : " + chats );
+            document.getElementById( 'chatMsg' ).appendChild( document.createElement('br' ) );
+            document.getElementById( 'chatMsg' ).appendChild( logmsg );
+        });
+
+        // On "note" played
+        function notePress( e ){
+            // Only allow notes ABCDEFG
+            if( 65 <= e.which && e.which <= 65+6 ||
+                97 <= e.which && e.which <= 97+6 ){
+                console.log( String.fromCharCode( e.which ));
+                displayNote( String.fromCharCode(e.which) );
+            }
+            document.getElementById('music_txt').value = "";
+            // Send note to the server.
+            socket.emit( 'notePlayed', String.fromCharCode( e.which ) );
+        }
+        
+        // Takes the played note from the server and displays it.
+        socket.on( 'playedNote', function( user, note ){
+            if( username != user ){
+                displayNote2( note.played );
+            }
+        });
+
+        // Display the note played.
+        function displayNote( note ){
+           console.log( note );
+            var disp = document.getElementById( 'note_disp' );
+            disp.innerText = note;
+            if( note != ' ' ){
+                setTimeout( "displayNote( ' ' );", 300 );
+            }
+        }
+        // Display the note played.
+        function displayNote2( note ){
+            var disp = document.getElementById( 'note_disp2' );
+            disp.innerText = note;
+            if( note != ' ' ){
+                setTimeout( "displayNote2( ' ' );", 300 );
+            }
         }
 
     </script>
 </head>
 <body onload="init()">
-<div id='content'>
+<div class='content'>
     <header>
         <h1>Play Your Music</h1>
     </header>
     <div id='chatList'>
     </div>
-    <div id='playingNow'>
-        <h2>Playing Now</h2>
+    <div id='main_screen'>
+        <div id='playingNow'>
+            <h2>Playing Now</h2>
+        </div>
+        <div id='addRoom'>
+            <h2>Add Room</h2>
+            <input type='text' name='roomName' id='roomName' />
+            <input type='button' id='submit' value='submit' onclick='addRoom()' /> 
+        </div>
     </div>
-    <div id='addRoom'>
-        <h2>Add Room</h2>
-        <input type='text' name='roomName' id='roomName' />
-        <input type='button' id='submit' value='submit' onclick='addRoom()' /> 
+    <div id='music_room'>
+        <div id='roomStatus'>
+            <input type='radio' name='stat' value='exist' checked onclick="radioChange(this.value)">exist
+            <input type='radio' name='stat' value='begun' onclick="radioChange(this.value)">begun
+            <input type='radio' name='stat' value='practice' onclick="radioChange(this.value)">practice
+            <input type='radio' name='stat' value='stopped' onclick="radioChange(this.value)">stopped
+        </div>
+        <div id='music_board'>
+            <input type='text' id='music_txt' />
+            <span class='note' id='note_disp'></span>
+            <span class='note' id='note_disp2'></span>
+        </div>
+        <div id='chats'>
+            <div id='chatMsg'>
+            </div>
+            <input type='text' id='chatsTxt' />
+            <input type='button' value='Submit' id='submit' onclick="sendMessage()" />
+        </div>
     </div>
 </div>
 </body>

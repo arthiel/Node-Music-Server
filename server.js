@@ -45,6 +45,19 @@ function handler( request, response ){
                 response.end( data );
             });
     }
+    else if(request.url == '/client_room.js' ){
+        fs.readFile( __dirname + '/client_room.js', 
+            function( err, data ){
+                if( err ){
+                    response.writeHead( 500 );
+                    return response.end( 'Error loading chat.html' );
+                }
+
+                // Write page to client
+                response.writeHead( 200 );
+                response.end( data );
+            });
+    }
     else if(request.url == '/style.css' ){
         fs.readFile( __dirname + '/style.css', 
             function( err, data ){
@@ -89,11 +102,27 @@ io.sockets.on( 'connection', function( socket ) {
         socket.emit( 'updateChatList', { rm: roomName } );
     });
 
+    // Change room
+    socket.on( 'changeRoom', function( roomName ){
+        if( socket.room != 'main' ){
+            socket.leave( socket.room );
+        }
+        console.log( socket.username + " has left " + socket.room + " joining " + roomName ); 
+        socket.room = roomName;
+        socket.join( roomName );
+    });
+
     // Change room status
     socket.on( 'roomStatusChange', function( stat ){
         socket.room.playStatus = stat;
-        socket.broadcast.to( 'main' ).emit( 'updatePlayingNow', {rm: socket.room, playStatus: stat} );
+        io.sockets.in('main').emit( 'updatePlayingNow', {rm: socket.room, playStatus: stat } );
+        //socket.broadcast.to( 'main' ).emit( 'updatePlayingNow', {rm: socket.room, playStatus: stat} );
         console.log( socket.room + " status changed: " + stat );
+    });
+
+    // Play notes to other sockets/users in the room.
+    socket.on( 'notePlayed', function( note ){
+        io.sockets.in( socket.room ).emit( 'playedNote', socket.username, {played: note} );
     });
 
     // On disconnection from server.
