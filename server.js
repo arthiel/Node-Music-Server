@@ -32,25 +32,12 @@ function handler( request, response ){
                 response.end( data );
             });
     }
-    else if(request.url == '/chat' ){
-        fs.readFile( __dirname + '/chat.html', 
-            function( err, data ){
-                if( err ){
-                    response.writeHead( 500 );
-                    return response.end( 'Error loading chat.html' );
-                }
-
-                // Write page to client
-                response.writeHead( 200 );
-                response.end( data );
-            });
-    }
     else if(request.url == '/client_room.js' ){
         fs.readFile( __dirname + '/client_room.js', 
             function( err, data ){
                 if( err ){
                     response.writeHead( 500 );
-                    return response.end( 'Error loading chat.html' );
+                    return response.end( 'Error loading client_room.js' );
                 }
 
                 // Write page to client
@@ -78,6 +65,7 @@ io.sockets.on( 'connection', function( socket ) {
 
     // When a user is added to the connection
     socket.on( 'addUser', function( username ){
+        // Add user to the respective room(s)
         socket.username = username;
         socket.room = 'main';
         users[username] = username;
@@ -104,19 +92,24 @@ io.sockets.on( 'connection', function( socket ) {
 
     // Change room
     socket.on( 'changeRoom', function( roomName ){
+        // User should always be connected to the Main room.
         if( socket.room != 'main' ){
             socket.leave( socket.room );
         }
+
+        // Control other room changes
+        var rmTemp = socket.room;
         console.log( socket.username + " has left " + socket.room + " joining " + roomName ); 
         socket.room = roomName;
         socket.join( roomName );
+        socket.emit( 'roomChanged', { rm: roomName, rmLeft: rmTemp, allRooms: io.sockets.manager.roomClients[socket.id] } );
     });
 
     // Change room status
     socket.on( 'roomStatusChange', function( stat ){
         socket.room.playStatus = stat;
         io.sockets.in('main').emit( 'updatePlayingNow', {rm: socket.room, playStatus: stat } );
-        //socket.broadcast.to( 'main' ).emit( 'updatePlayingNow', {rm: socket.room, playStatus: stat} );
+        io.sockets.in( socket.room ).emit( 'roomStatus', { playStatus: stat } );
         console.log( socket.room + " status changed: " + stat );
     });
 
@@ -124,6 +117,35 @@ io.sockets.on( 'connection', function( socket ) {
     socket.on( 'notePlayed', function( note ){
         io.sockets.in( socket.room ).emit( 'playedNote', socket.username, {played: note} );
     });
+
+  /***** m e t r o n o m e *****/
+    var stop = false;
+    // Room is ready for metronome
+    socket.on( 'soundReady', function() {
+        console.log( "Client is ready for sound." );
+        stop = false;
+        var intId = setTimeout( startMeasure, 5000 );
+        if (stop == true) {
+            console.log("Cleared");
+            clearInterval( intId );
+        }
+    });
+
+    // room is to stop
+    socket.on( 'stopBeat', function() {
+        console.log("STOP");
+        stop = true;
+    });
+
+    // start a new measure.
+    function startMeasure(){
+        socket.emit( 'newMeasure' );
+        var intId = setTimeout( startMeasure, 5000 );
+        if (stop == true) {
+            console.log("Cleared");
+            clearTimeout( intId );
+        }
+    }
 
     // On disconnection from server.
     socket.on( 'disconnect', function() {

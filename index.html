@@ -7,7 +7,7 @@
     <script src='./client_room.js'></script>
     <script>
         var username;
-        var socket = io.connect( 'http://129.21.102.142' );
+        var socket = io.connect( 'http://localhost' ); //129.21.101.36' );
         var room_status = 'exist';
 
         function init(){
@@ -29,15 +29,33 @@
             if( newRoom == socket.room ){
                 addMe.className += ' current';
             }
-            console.log( addMe );
             addMe.appendChild( document.createTextNode( newRoom.rm ));
             chatList.appendChild( addMe );
             addMe.addEventListener( 'click', changeRm, false );
         });
 
+        // When the user changes rooms, change the color of that room.
+        socket.on( 'roomChanged', function( room ){
+            var rooms = document.getElementsByClassName('chatRooms');
+            var i=0;
+            while( rooms[i].innerText != room.rm ){
+                console.log( rooms[i].innerText);
+                i++;
+            }
+            console.log( room.allRooms );
+            rooms[i].style.backgroundColor = '#32CD32';
+            i=0;
+            console.log( room.rmLeft );
+            while( rooms[i].innerText != room.rmLeft ){
+                console.log( rooms[i].innerText);
+                i++;
+            }
+            rooms[i].style.backgroundColor = '#D3D3D3';
+        });
+
         // Update the information of Room Statuses
         socket.on( 'updatePlayingNow', function( playNow ){
-            var playing = document.getElementById('playingNow');
+            var playing = document.getElementById('playingNowProg');
             var addMe = document.createElement('div');
             addMe.className = 'playingNow';
             addMe.appendChild( document.createTextNode( playNow.rm + " has " + playNow.playStatus ));
@@ -63,14 +81,48 @@
             // Only allow notes ABCDEFG
             if( 65 <= e.which && e.which <= 65+6 ||
                 97 <= e.which && e.which <= 97+6 ){
-                console.log( String.fromCharCode( e.which ));
                 displayNote( String.fromCharCode(e.which) );
+                socket.emit( 'notePlayed', String.fromCharCode( e.which ) );
             }
             document.getElementById('music_txt').value = "";
             // Send note to the server.
-            socket.emit( 'notePlayed', String.fromCharCode( e.which ) );
         }
-        
+      
+        // When the room status has been changed (by any user)
+        socket.on( 'roomStatus', function( status ){
+            var radios = document.getElementById( 'roomStatus' ).getElementsByTagName('input');
+            var i = 0;
+            // Change the status in radio buttons.
+            while( radios[i].value != status.playStatus ){
+                console.log( radios[i].value );
+                i++;
+            }
+            radios[i].checked = true;
+
+            // If the new status is "begun"... Prepare sound.
+            if( status.playStatus == 'begun' ){
+                socket.emit( 'soundReady' );
+            }
+            // If the new status is "stopped"... Stop metronoming!
+            else if( status.playStatus != 'begun' ){
+                socket.emit( 'stopBeat' );
+            }
+        });
+
+        // On a new measure.
+        socket.on( 'newMeasure', function() {
+            measureDisplay('beat');
+        });
+
+        // Display Measure info
+        function measureDisplay(spot) {
+            var met = document.getElementById("metronome");
+            met.innerText = spot;
+            if( spot != '' ){
+            setTimeout( "measureDisplay('');", 500 );
+            }
+        }
+
         // Takes the played note from the server and displays it.
         socket.on( 'playedNote', function( user, note ){
             if( username != user ){
@@ -108,6 +160,9 @@
     <div id='main_screen'>
         <div id='playingNow'>
             <h2>Playing Now</h2>
+            <div id='playingNowProg'>
+
+            </div>
         </div>
         <div id='addRoom'>
             <h2>Add Room</h2>
@@ -126,6 +181,7 @@
             <input type='text' id='music_txt' />
             <span class='note' id='note_disp'></span>
             <span class='note' id='note_disp2'></span>
+            <div id='metronome'></div>
         </div>
         <div id='chats'>
             <div id='chatMsg'>
@@ -135,5 +191,6 @@
         </div>
     </div>
 </div>
+
 </body>
 </html>

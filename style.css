@@ -60,7 +60,12 @@ header h1 {
     width: 40%;
     height: 200px;
     float: left;
+}
+
+#playingNow #playingNowProg{
     overflow-y: scroll;
+    height: 190px;
+    scroll-top: 200;
 }
 
 #addRoom {
@@ -76,6 +81,7 @@ header h1 {
     width: 100%;
     padding-top: 20px;
     height: 300px;
+    margin-bottom: 20px;
 }
 #music_board {
     width: 40%;
@@ -118,4 +124,14 @@ header h1 {
 
 #chatsTxt {
     width: 70%;
+}
+
+// Info Screen
+#info {
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+    top: 50px;
+    background-color: white;
+    display: hidden;
 }
